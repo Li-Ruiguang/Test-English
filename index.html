@@ -2,9 +2,144 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="format-detection" content="email=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <title>英语听力测试</title>
     <link rel="stylesheet" href="style.css">
+    
+    <!-- 微信浏览器兼容 -->
+    <script type="text/javascript">
+        // 阻止微信浏览器中的默认行为
+        document.addEventListener('touchstart', function(e) {}, false);
+        
+        // 确保音频能在微信中自动播放
+        document.addEventListener('WeixinJSBridgeReady', function() {
+            // 微信JS-SDK准备就绪
+            WeixinJSBridge.invoke('getNetworkType', {}, function(res) {
+                // 获取网络类型成功
+            });
+            
+            // 处理音频播放，确保在微信中能正常播放
+            var audios = document.getElementsByTagName('audio');
+            for (var i = 0; i < audios.length; i++) {
+                audios[i].addEventListener('play', function() {
+                    // 播放当前音频时，暂停其他音频
+                    for (var j = 0; j < audios.length; j++) {
+                        if (audios[j] !== this) {
+                            audios[j].pause();
+                        }
+                    }
+                });
+            }
+        }, false);
+        
+        // 处理iOS微信中的音频播放问题
+        if (typeof WeixinJSBridge == "undefined") {
+            document.addEventListener('DOMContentLoaded', function() {
+                // 页面加载完成
+                initAudioPlayback();
+            });
+        } else {
+            WeixinJSBridge.invoke('getNetworkType', {}, function(res) {
+                // 获取网络类型成功
+                initAudioPlayback();
+            });
+        }
+        
+        // 初始化音频播放功能
+        function initAudioPlayback() {
+            var audios = document.getElementsByTagName('audio');
+            if (audios.length > 0) {
+                // 为音频添加点击事件，确保能在微信中播放
+                for (var i = 0; i < audios.length; i++) {
+                    audios[i].addEventListener('click', function() {
+                        if (this.paused) {
+                            this.play();
+                        } else {
+                            this.pause();
+                        }
+                    });
+                }
+            }
+        }
+        
+        // 微信分享配置
+        var wxShareConfig = {
+            title: '英语听力测试',
+            desc: '请听下面的5个音频，然后在对应的文本框中输入你听到的内容。',
+            link: window.location.href,
+            imgUrl: ''
+        };
+        
+        // 处理微信分享
+        function initWxShare() {
+            if (typeof wx != 'undefined') {
+                wx.config({
+                    debug: false,
+                    appId: '',
+                    timestamp: 0,
+                    nonceStr: '',
+                    signature: '',
+                    jsApiList: ['updateAppMessageShareData', 'updateTimelineShareData', 'onMenuShareAppMessage', 'onMenuShareTimeline']
+                });
+                
+                wx.ready(function() {
+                    // 分享给朋友
+                    wx.updateAppMessageShareData({
+                        title: wxShareConfig.title,
+                        desc: wxShareConfig.desc,
+                        link: wxShareConfig.link,
+                        imgUrl: wxShareConfig.imgUrl,
+                        success: function() {
+                            // 分享成功
+                        }
+                    });
+                    
+                    // 分享到朋友圈
+                    wx.updateTimelineShareData({
+                        title: wxShareConfig.title,
+                        link: wxShareConfig.link,
+                        imgUrl: wxShareConfig.imgUrl,
+                        success: function() {
+                            // 分享成功
+                        }
+                    });
+                    
+                    // 兼容旧版本微信
+                    wx.onMenuShareAppMessage({
+                        title: wxShareConfig.title,
+                        desc: wxShareConfig.desc,
+                        link: wxShareConfig.link,
+                        imgUrl: wxShareConfig.imgUrl,
+                        type: '',
+                        dataUrl: '',
+                        success: function() {
+                            // 分享成功
+                        }
+                    });
+                    
+                    wx.onMenuShareTimeline({
+                        title: wxShareConfig.title,
+                        link: wxShareConfig.link,
+                        imgUrl: wxShareConfig.imgUrl,
+                        success: function() {
+                            // 分享成功
+                        }
+                    });
+                });
+            }
+        }
+        
+        // 页面加载完成后初始化微信分享
+        document.addEventListener('DOMContentLoaded', function() {
+            initWxShare();
+        });
+    </script>
 </head>
 <body>
     <div class="container">
